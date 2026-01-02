@@ -1,5 +1,4 @@
 package com.example.userapi.service.impl;
-
 import com.example.userapi.dto.request.SignupRequest;
 import com.example.userapi.dto.response.UserResponse;
 import com.example.userapi.entity.Role;
@@ -142,7 +141,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User is already active");
         }
         
-        user.setStatus(1); // Set to Active
+        user.setStatus(1);
         User savedUser = userRepository.save(user);
         return mapToResponse(savedUser);
     }
