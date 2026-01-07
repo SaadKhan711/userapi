@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,17 +60,34 @@ public class FileProcessingService {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             
+            DataFormatter dataFormatter = new DataFormatter();
+
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; 
+         
+                if (row.getRowNum() < 2) continue; 
 
                 UserDetails details = new UserDetails();
                 
-                if (row.getCell(0) != null) details.setPhoneNumber(row.getCell(0).toString());
-                if (row.getCell(1) != null) details.setAddress(row.getCell(1).toString());
-                if (row.getCell(2) != null) details.setCity(row.getCell(2).toString());
-                if (row.getCell(3) != null) details.setDepartment(row.getCell(3).toString());
-                details.setFilePath("Imported from Excel");
 
+                
+                if (row.getCell(1) != null) {
+                    String phone = dataFormatter.formatCellValue(row.getCell(1));
+                    details.setPhoneNumber(phone);
+                }
+                
+                if (row.getCell(2) != null) {
+                    details.setAddress(row.getCell(2).toString());
+                }
+                
+                if (row.getCell(3) != null) {
+                    details.setCity(row.getCell(3).toString());
+                }
+                
+                if (row.getCell(4) != null) {
+                    details.setDepartment(row.getCell(4).toString());
+                }
+
+                details.setFilePath("Imported from Excel");
                 detailsList.add(details);
             }
 
@@ -83,16 +97,19 @@ public class FileProcessingService {
         } catch (IOException e) {
             throw new RuntimeException("Excel Error: " + e.getMessage());
         }
-    }
+    } 
 
-    
-    
     public String saveDataToXml() {
         try {
             List<UserDetails> allData = detailsRepository.findAll();
 
             XmlMapper xmlMapper = new XmlMapper();
             xmlMapper.enable(SerializationFeature.INDENT_OUTPUT); 
+
+            File directory = new File(exportPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
 
             String filename = "database_dump_" + System.currentTimeMillis() + ".xml";
             File xmlFile = new File(exportPath + "/" + filename);
