@@ -1,29 +1,33 @@
 package com.example.userapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
+@Table(name = "mark_list")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class MarkList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double totalMark;
+    private String registrationId; 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "year_mark_id")
+    @Column(name = "class_subject_ref_id")
+    private Long subjectTableId; 
+
+    private Double totalMarks; 
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "obtained_marks_list")
+    private List<Integer> obtainedMarks;
+    
+    @OneToOne(mappedBy = "markList", cascade = CascadeType.ALL)
+    @JsonIgnore
     private YearMark yearMark;
-
-    @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
 }
