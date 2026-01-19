@@ -41,7 +41,6 @@ public class DataSeeder implements CommandLineRunner {
                 subjectNameRepo.save(sn);
             }
         }
-
  
         List<String> middleSchoolSubjects = Arrays.asList(
             "Mathematics", "English", "Hindi", "Science", "Social Science", "Environmental Studies (EVS)"

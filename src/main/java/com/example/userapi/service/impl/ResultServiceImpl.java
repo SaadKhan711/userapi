@@ -5,12 +5,15 @@ import com.example.userapi.entity.MarkList;
 import com.example.userapi.entity.StudentRecord;
 import com.example.userapi.entity.Subject;
 import com.example.userapi.entity.YearMark;
+import com.example.userapi.exception.ValidationException;
 import com.example.userapi.repository.StudentRecordRepository;
 import com.example.userapi.repository.SubjectRepository;
 import com.example.userapi.repository.YearMarkRepository;
 import com.example.userapi.service.ResultService;
+import com.example.userapi.validation.AppValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +30,29 @@ public class ResultServiceImpl implements ResultService {
     @Autowired
     private SubjectRepository subjectRepo;
 
+    @Autowired
+    private AppValidator validator; 
+
     @Override
     public YearMark processResult(ResultInputDto dto) {
+
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(dto, "resultInputDto");
+        validator.validate(dto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException(bindingResult);
+        }
+
         
         StudentRecord student = studentRepo.findByRegistrationId(dto.getRegistrationId());
-        if (student == null) throw new RuntimeException("Student not found!");
+        if (student == null) {
+            throw new RuntimeException("Student not found with ID: " + dto.getRegistrationId());
+        }
 
         Subject classInfo = subjectRepo.findByClassName(student.getAssignedClass());
-        if (classInfo == null) throw new RuntimeException("Class Curriculum not found!");
+        if (classInfo == null) {
+            throw new RuntimeException("Class Curriculum not found for: " + student.getAssignedClass());
+        }
 
         MarkList markList = new MarkList();
         markList.setRegistrationId(dto.getRegistrationId());
@@ -57,10 +75,9 @@ public class ResultServiceImpl implements ResultService {
 
         double maxPossible = dto.getSubjects().size() * 100;
         double percentage = (totalObtained / maxPossible) * 100;
-        percentage = Math.round(percentage * 100.0) / 100.0;
+        percentage = Math.round(percentage * 100.0) / 100.0; 
         
         yearMark.setPercentage(percentage);
-
         yearMark.setGrade(calculateGrade(percentage));
 
         yearMark.setMarkList(markList);

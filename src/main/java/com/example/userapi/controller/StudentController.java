@@ -1,5 +1,6 @@
 package com.example.userapi.controller;
 
+import com.example.userapi.dto.ApiResponse;
 import com.example.userapi.dto.ResultInputDto;
 import com.example.userapi.dto.StudentRegistrationDto;
 import com.example.userapi.entity.StudentRecord;
@@ -21,14 +22,17 @@ public class StudentController {
     private ResultService resultService;
 
     @PostMapping("/add")
-    public ResponseEntity<StudentRecord> addStudent(@RequestBody StudentRegistrationDto dto) {
+    public ResponseEntity<ApiResponse<StudentRecord>> addStudent(@RequestBody StudentRegistrationDto dto) {
+    
         StudentRecord savedStudent = studentService.registerStudent(dto);
-        return ResponseEntity.ok(savedStudent);
+        
+        return ResponseEntity.ok(ApiResponse.success("Student Registered Successfully", savedStudent));
     }
 
     @PostMapping("/results/add")
-    public ResponseEntity<YearMark> addResult(@RequestBody ResultInputDto dto) {
+    public ResponseEntity<ApiResponse<YearMark>> addResult(@RequestBody ResultInputDto dto) {
         YearMark savedResult = resultService.processResult(dto);
-        return ResponseEntity.ok(savedResult);
+        
+        return ResponseEntity.ok(ApiResponse.success("Result Added Successfully", savedResult));
     }
 }

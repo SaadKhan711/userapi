@@ -4,7 +4,8 @@ import com.example.userapi.dto.request.LoginRequest;
 import com.example.userapi.dto.request.SignupRequest;
 import com.example.userapi.dto.response.JwtResponse;
 import com.example.userapi.service.AuthenticationService;
-import com.example.userapi.validation.UserValidator;
+import com.example.userapi.validation.AppValidator;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationService service;
-    private final UserValidator userValidator;
+    private final AppValidator Validator;
 
     @InitBinder("signupRequest")
     public void initBinder(WebDataBinder binder) {
-        binder.addValidators(userValidator);
+        binder.addValidators(Validator);
     }
 
     @PostMapping("/register")

@@ -24,9 +24,10 @@ public class StudentRecord {
     private String dob;
     private String fatherName;
     private String motherName;
-
+    private String address;
+    private String gender;
+    private String contactNumber;
     private String assignedClass; 
-
     private String status;
 
     @Column(updatable = false)
